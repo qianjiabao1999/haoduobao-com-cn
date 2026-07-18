@@ -1,6 +1,6 @@
-# haoduobao.com.cn
+# www.haoduobao.com.cn
 
-浙江好多宝品牌管理有限公司现有官网 `www.haoduobao888.com` 的静态发布版本，用于先在 GitHub Pages 验证真机效果，再将 `haoduobao.com.cn` 接入阿里云 DNS。
+浙江好多宝品牌管理有限公司现有官网 `www.haoduobao888.com` 的静态发布版本，用于先在 GitHub Pages 验证真机效果，再将 `www.haoduobao.com.cn` 接入阿里云 DNS。
 
 ## 快照范围
 
@@ -33,4 +33,4 @@ npm run validate
 
 第一次发布先不配置自定义域名，以便通过项目的 `github.io` 地址完成浏览器与真机验证。本站使用 GitHub Actions 发布，因此自定义域名需要在 GitHub Pages 设置或 API 中配置，发布目录不依赖 `CNAME` 文件。
 
-确认预览后，在 GitHub Pages 中设置 `haoduobao.com.cn`，再于阿里云 DNS 添加 GitHub Pages 所需的根域名 A 记录和 `www` CNAME 记录，等待 GitHub 签发 HTTPS 证书。
+确认预览后，在 GitHub Pages 中设置 `www.haoduobao.com.cn`，再于阿里云 DNS 添加 `www` CNAME 和根域名 A 记录；GitHub Pages 会把根域名自动跳转到 `www`，并在 DNS 生效后签发 HTTPS 证书。

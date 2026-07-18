@@ -17,7 +17,7 @@ const cacheDir = path.join(projectDir, "cache");
 
 const sourceOrigin = "http://www.haoduobao888.com";
 const sourceHostnames = new Set(["haoduobao888.com", "www.haoduobao888.com"]);
-const targetOrigin = "https://haoduobao.com.cn";
+const targetOrigin = "https://www.haoduobao.com.cn";
 const runtimeAssetUrls = [
   "https://0.ss.508sys.com/image/rimage/fromSite/loading/dot.gif",
   "https://0.ss.508sys.com/image/rimage/module/online_map/marker_red_sprite.png",

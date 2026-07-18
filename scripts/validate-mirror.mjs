@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const projectDir = path.resolve(scriptDir, "..");
 const siteDir = path.join(projectDir, "site");
-const expectedTargetOrigin = "https://haoduobao.com.cn";
+const expectedTargetOrigin = "https://www.haoduobao.com.cn";
 const failures = [];
 
 function assert(condition, message) {
