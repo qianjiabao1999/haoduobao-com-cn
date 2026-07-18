@@ -1,0 +1,4 @@
+/* Static-host compatibility only. Source typography, spacing, colors, and layout remain unchanged. */
+html[data-static-mirror="ready"] a[href^="tel:"] {
+  -webkit-tap-highlight-color: transparent;
+}

@@ -1,0 +1,11 @@
+{
+  "name": "haoduobao-com-cn-static-mirror",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "mirror": "node scripts/mirror-source.mjs",
+    "validate": "node scripts/validate-mirror.mjs"
+  }
+}
+
