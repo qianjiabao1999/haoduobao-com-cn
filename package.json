@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "mirror": "node scripts/mirror-source.mjs",
+    "brand": "python3 scripts/generate-brand-assets.py && node scripts/apply-brand-overrides.mjs",
+    "mirror": "node scripts/mirror-source.mjs && node scripts/apply-brand-overrides.mjs",
     "validate": "node scripts/validate-mirror.mjs"
   }
 }
-

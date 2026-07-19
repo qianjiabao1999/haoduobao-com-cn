@@ -2,3 +2,23 @@
 html[data-static-mirror="ready"] a[href^="tel:"] {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* The new two-line brand lockup should fill the desktop header's logo box. */
+#jz_website_title.jz_pc_website_title .logo_wrap > a > img.logo_img:not(.hidden) {
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  margin: 0 !important;
+  object-fit: contain !important;
+  transform: translateY(-50%) !important;
+}
+
+#jz_website_title.jz_mobi_website_title .logo_wrap > a > img.logo_img:not(.hidden) {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  object-fit: contain !important;
+}

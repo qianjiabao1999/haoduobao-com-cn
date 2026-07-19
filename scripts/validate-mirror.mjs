@@ -6,6 +6,8 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { computeBrandVersion } from "./brand-version.mjs";
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const projectDir = path.resolve(scriptDir, "..");
 const siteDir = path.join(projectDir, "site");
@@ -34,12 +36,15 @@ async function fileExists(localPath) {
 }
 
 async function main() {
+  const expectedBrandVersion = await computeBrandVersion(projectDir);
   const manifest = JSON.parse(await fs.readFile(path.join(siteDir, "mirror-manifest.json"), "utf8"));
 
   assert(manifest.sourceOrigin === "http://www.haoduobao888.com", "source origin changed");
   assert(manifest.targetOrigin === expectedTargetOrigin, "target origin changed");
+  assert(manifest.brand?.version === expectedBrandVersion, "brand version is missing or wrong");
+  assert(manifest.brand?.overrides?.length === 19, "expected 19 brand asset overrides");
   assert(manifest.totals.pages === 210, `expected 210 pages, found ${manifest.totals.pages}`);
-  assert(manifest.totals.assets === 1113, `expected 1113 assets, found ${manifest.totals.assets}`);
+  assert(manifest.totals.assets === 1120, `expected 1120 assets, found ${manifest.totals.assets}`);
   assert(manifest.totals.assetBytes > 180 * 1024 * 1024, "asset snapshot is unexpectedly small");
 
   const pagePaths = new Set();
@@ -63,6 +68,23 @@ async function main() {
       (html.match(/static-enhancements\.js/g) ?? []).length === 1,
       `${page.localPath}: compatibility JS is missing or duplicated`,
     );
+    assert(
+      html.includes(`static-enhancements.css?v=${expectedBrandVersion}`) &&
+        html.includes(`static-enhancements.js?v=${expectedBrandVersion}`),
+      `${page.localPath}: compatibility asset cache version is missing or wrong`,
+    );
+    assert(
+      html.includes('"lh":341,"lw":776'),
+      `${page.localPath}: mobile logo dimensions are missing or wrong`,
+    );
+    assert(
+      html.includes('"cflw":1644,"cflh":722'),
+      `${page.localPath}: desktop logo dimensions are missing or wrong`,
+    );
+    assert(
+      html.includes(`?brand=${expectedBrandVersion}`),
+      `${page.localPath}: brand cache version is missing`,
+    );
   }
 
   assert(pagePaths.size === 210, `expected 210 unique local page paths, found ${pagePaths.size}`);
@@ -77,7 +99,10 @@ async function main() {
     assert(data.length === asset.bytes, `${asset.localPath}: byte count differs from manifest`);
     assert(sha256(data) === asset.sha256, `${asset.localPath}: hash differs from manifest`);
   }
-  assert(assetPaths.size === 1113, `expected 1113 unique asset paths, found ${assetPaths.size}`);
+  assert(assetPaths.size === 1120, `expected 1120 unique asset paths, found ${assetPaths.size}`);
+  for (const localPath of manifest.brand?.overrides ?? []) {
+    assert(assetPaths.has(localPath), `brand override is absent from asset manifest: ${localPath}`);
+  }
   assert(
     verifiedAssetBytes === manifest.totals.assetBytes,
     "verified asset byte total differs from manifest",
@@ -98,6 +123,9 @@ async function main() {
     "en/index.html",
     "robots.txt",
     "assets/site/captcha.png",
+    "assets/site/haoduobao-favicon.ico",
+    "assets/site/haoduobao-favicon.png",
+    "assets/site/haoduobao-logo.png",
     "assets/site/static-enhancements.css",
     "assets/site/static-enhancements.js",
   ]) {

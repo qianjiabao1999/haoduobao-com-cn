@@ -9,6 +9,8 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import zlib from "node:zlib";
 
+import { computeBrandVersion } from "./brand-version.mjs";
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const projectDir = path.resolve(scriptDir, "..");
 const siteDir = path.join(projectDir, "site");
@@ -21,7 +23,14 @@ const targetOrigin = "https://www.haoduobao.com.cn";
 const runtimeAssetUrls = [
   "https://0.ss.508sys.com/image/rimage/fromSite/loading/dot.gif",
   "https://0.ss.508sys.com/image/rimage/module/online_map/marker_red_sprite.png",
+  "https://31624010.s21i.faiusr.com/4/ABUIABAEGAAg2rSJqQYoyP2_MTD4EDjwBQ!200x200.png.webp",
+  "https://31624010.s21i.faiusr.com/4/ABUIABAEGAAg2rSJqQYoyP2_MTD4EDjwBQ!400x400.png.webp",
+  "https://31624010.s21i.faiusr.com/4/ABUIABAEGAAg2rSJqQYoyP2_MTD4EDjwBQ!600x600.png.webp",
+  "https://31624010.s21i.faiusr.com/4/ABUIABAEGAAg2rSJqQYoyP2_MTD4EDjwBQ.png.webp",
+  "https://31624010.s21i.faiusr.com/4/ABUIABAEGAAgo5HDqQYoqoiXogEwpwU4aw!200x200.png.webp",
   "https://31624010.s21i.faiusr.com/4/ABUIABAEGAAgo5HDqQYoqoiXogEwpwU4aw!400x400.png.webp",
+  "https://31624010.s21i.faiusr.com/4/ABUIABAEGAAgo5HDqQYoqoiXogEwpwU4aw!600x600.png.webp",
+  "https://31624010.s21i.faiusr.com/4/ABUIABAEGAAgo5HDqQYoqoiXogEwpwU4aw.png.webp",
 ];
 const userAgent =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
@@ -482,9 +491,9 @@ function updateMetadata(html, sourcePageUrl) {
   return updated;
 }
 
-function injectStaticEnhancements(html, pagePath) {
-  const scriptPath = relativeUrl(pagePath, "assets/site/static-enhancements.js");
-  const cssPath = relativeUrl(pagePath, "assets/site/static-enhancements.css");
+function injectStaticEnhancements(html, pagePath, staticEnhancementVersion) {
+  const scriptPath = `${relativeUrl(pagePath, "assets/site/static-enhancements.js")}?v=${staticEnhancementVersion}`;
+  const cssPath = `${relativeUrl(pagePath, "assets/site/static-enhancements.css")}?v=${staticEnhancementVersion}`;
   let updated = html;
   const headEnd = updated.toLowerCase().lastIndexOf("</head>");
   if (headEnd !== -1) {
@@ -504,6 +513,7 @@ function injectStaticEnhancements(html, pagePath) {
 }
 
 async function main() {
+  const staticEnhancementVersion = await computeBrandVersion(projectDir);
   await fs.mkdir(siteDir, { recursive: true });
 
   const [cnSitemap, enSitemap] = await Promise.all([
@@ -587,7 +597,7 @@ async function main() {
     let html = rewriteAssetUrls(page.html, page.localPath, assetMap);
     html = rewriteInternalLinks(html, page.localPath);
     html = updateMetadata(html, page.sourceUrl);
-    html = injectStaticEnhancements(html, page.localPath);
+    html = injectStaticEnhancements(html, page.localPath, staticEnhancementVersion);
 
     await writeFile(path.join(siteDir, page.localPath), html);
     pageManifest.push({

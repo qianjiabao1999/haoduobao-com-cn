@@ -6,7 +6,7 @@
 
 - 中文与英文共 210 个公开页面
 - 93 个商品详情的中英文页面
-- 1,113 个本地图片、图标、字体及页面资源
+- 1,120 个本地图片、图标、字体及页面资源
 - 首页、栏目页、商品页、新闻页、品牌/服务页及其响应式手机布局
 - 原站导航、轮播、悬浮联系方式、手机底栏、表单外观和验证码外观
 - `sitemap.xml`、`robots.txt`、canonical 与 Open Graph 地址已指向新域名
@@ -28,6 +28,17 @@ npm run validate
 ```
 
 `cache/` 仅用于本地抓取加速，不提交到 GitHub。`site/` 是 GitHub Pages 的完整发布目录。
+
+## 更新品牌 Logo
+
+全站 Logo 的透明底母版保存在 `brand/haoduobao-logo.png`。替换母版后运行：
+
+```bash
+npm run brand
+npm run validate
+```
+
+该命令会生成桌面端、中文手机端、英文手机端、响应式 WebP 和多尺寸 favicon，并同步更新 210 个页面的图片比例、缓存版本与镜像校验值。`npm run mirror` 也会在抓取完成后自动重新应用品牌资源，避免源站快照覆盖新 Logo。
 
 ## 域名切换
 
