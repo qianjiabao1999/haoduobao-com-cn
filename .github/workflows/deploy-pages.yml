@@ -12,24 +12,61 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Validate static mirror
+        run: npm run validate
+
+      - name: Stamp release revision
+        run: printf '%s\n' "$GITHUB_SHA" > site/.pages-revision
+
+      - name: Configure Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-      - name: Upload static site
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: site
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
 
+      - name: Verify deployed revision
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          revision_url="${PAGE_URL%/}/.pages-revision"
+          for attempt in {1..18}; do
+            deployed_revision="$(curl --fail --silent --show-error --location \
+              --connect-timeout 10 --max-time 30 "$revision_url" || true)"
+            if [ "$deployed_revision" = "$GITHUB_SHA" ]; then
+              echo "Verified deployed revision $GITHUB_SHA at $PAGE_URL"
+              exit 0
+            fi
+            echo "Attempt $attempt/18: waiting for $GITHUB_SHA (received: ${deployed_revision:-unavailable})"
+            sleep 10
+          done
+          echo "::error::GitHub Pages did not serve revision $GITHUB_SHA from $revision_url"
+          exit 1
