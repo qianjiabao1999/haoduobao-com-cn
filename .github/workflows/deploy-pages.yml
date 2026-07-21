@@ -63,7 +63,8 @@ jobs:
           revision_url="${PAGE_URL%/}/pages-revision.txt"
           for attempt in {1..18}; do
             deployed_revision="$(curl --fail --silent --show-error --location \
-              --connect-timeout 10 --max-time 30 "$revision_url" || true)"
+              --header 'Cache-Control: no-cache' --connect-timeout 10 --max-time 30 \
+              "$revision_url?revision=$GITHUB_SHA&attempt=$attempt" || true)"
             if [ "$deployed_revision" = "$GITHUB_SHA" ]; then
               echo "Verified deployed revision $GITHUB_SHA at $PAGE_URL"
               exit 0
