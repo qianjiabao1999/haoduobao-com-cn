@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -30,8 +30,11 @@ jobs:
       - name: Validate static mirror
         run: npm run validate
 
+      - name: Validate enhancement JavaScript
+        run: node --check site/assets/site/static-enhancements.js
+
       - name: Stamp release revision
-        run: printf '%s\n' "$GITHUB_SHA" > site/.pages-revision
+        run: printf '%s\n' "$GITHUB_SHA" > site/pages-revision.txt
 
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
@@ -57,7 +60,7 @@ jobs:
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
-          revision_url="${PAGE_URL%/}/.pages-revision"
+          revision_url="${PAGE_URL%/}/pages-revision.txt"
           for attempt in {1..18}; do
             deployed_revision="$(curl --fail --silent --show-error --location \
               --connect-timeout 10 --max-time 30 "$revision_url" || true)"
